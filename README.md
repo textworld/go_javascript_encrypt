@@ -2,6 +2,13 @@
 
 本项目提供了一份在Js中加密go端解密的样例代码,包括aes和rsa两种方法
 
+## 如何运行
+```
+go run  github.com/textworld/go_js_encrypt
+```
+
+打开浏览器,访问 http://localhost:9800  
+
 ![example](example.png)
 
 ## 注意事项
