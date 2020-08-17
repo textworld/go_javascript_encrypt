@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+    <style>
+        .encrypt_div input, .encrypt_div textarea {
+            width: 300px;
+            vertical-align: top;
+        }
+
+        .encrypt_div button {
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+    <h1>AES CTR 加密</h1>
+    <div class="encrypt_div">
+        <p>
+            <input id="aes_text" placeholder="需要被加密的密文" /> <button id="btn_aes_js_encrypt">js加密</button>
+        </p>
+        <p>
+            <textarea id="aes_encrypt" rows="4"></textarea> <button id="btn_aes_go_decrypt">go解密</button>
+        </p>
+        <p>
+            <input id="aes_decrypt" />
+        </p>
+    </div>
+
+    <h1>RSA 加密</h1>
+    <div class="encrypt_div">
+        <p>
+            <input id="rsa_text" placeholder="需要被加密的密文" /> <button id="btn_ras_js_encrypt">js加密</button>
+        </p>
+        <p>
+            <textarea id="rsa_public_key" rows="4">-----BEGIN PUBLIC KEY-----
+                MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAwJTpXyWclMfGyLAywsSG
+                8e1Hy7pSPIt2xywbJwnSckhLCwDBxNHVUJtpRee5TQFB19R9SsTVTk9/xpk3HcHS
+                m4AUv3x0KwmmMJpQRoni0UxVS72xR1znAw+kDO2fQWEf5hlUsapClhpeR3e3PqMT
+                m525TuEp1GjXXIpw+7zmGQyYfBR55A6AMLUnjKedlk+3/Kckez/d9z+rO2jKoh+v
+                T9y2uDPnh371ekPFe5fBeSDTQFr8N6v2bOzKvNtU7vBo7dnO4xot/zLvofcAVxwv
+                wpIFclMtbyNGG4x3UicIPC66/Yp9kFsKb4wSyasBsRb3rxyQQSVyP/zIvu23aEQv
+                joeCWK0Wv5/JAdx28TBCbopgL+aVpbtaqmVOabEStEJhDoukdArGA457CzTvWOOe
+                sy9soHKXXqNQDfmH/vguiiqMK0BJjZoAx8XYUvpnX5QhsXXW3SGkgHI/tDTVwAtv
+                wtjys3dhl721Cej/ayR/J1CS0X+3VFTCXFKjt6Kxg7peB8cW1ssH65qK2d6Yqozh
+                2qbxj9SMLPFbehJQk5UVqEoSzXrJTCW8kxkJJY9PK6ky1Z551ZrDjEQ7R9eODEES
+                38OGiI4y2tp3kaxhMJ3BelY7zSD2GSnCAZKu74bWV8MTxlc3dUxKR5l4fCVb2Sei
+                sncFsYHrBnGBZtJoSZwMjtECAwEAAQ==
+                -----END PUBLIC KEY-----</textarea>
+        </p>
+        <p>
+            <textarea id="rsa_encrypt" ></textarea> <button id="btn_rsa_go_decrypt">go解密</button>
+        </p>
+        <p>
+            <input id="rsa_decrypt" />
+        </p>
+    </div>
+    <script src="/statics/jquery.min.js" rel="script"></script>
+    <script type="text/javascript" src="/statics/bower_components/crypto-js/crypto-js.js"></script>
+    <script type="text/javascript" src="/statics/bower_components/jsencrypt/bin/jsencrypt.js"></script>
+    <script>
+        $('#btn_aes_js_encrypt').click(function(){
+            var key = CryptoJS.enc.Hex.parse('31323334353637383930313233343536');
+            var iv = CryptoJS.enc.Hex.parse('0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f');
+            var encrypted = CryptoJS.AES.encrypt($('#aes_text').val(), key, {
+                mode: CryptoJS.mode.CTR,
+                iv: iv,
+                padding: CryptoJS.pad.NoPadding
+            });
+            $('#aes_encrypt').val(encrypted.ciphertext.toString())
+        })
+
+        $('#btn_aes_go_decrypt').click(function(){
+            $.ajax({
+                url: '/aes',
+                data: JSON.stringify({
+                    text: $('#aes_encrypt').val()
+                }),
+                type: 'post',
+                contentType: "application/json",
+                dataType: "json",
+                success: function(response){
+                    if (response.code === 2000) {
+                        $('#aes_decrypt').val(response.data)
+                    }else{
+                        alert(response.message)
+                    }
+                }
+            })
+        })
+
+        $('#btn_ras_js_encrypt').click(function(){
+            var encrypt = new JSEncrypt();
+            encrypt.setPublicKey($('#rsa_public_key').val());
+            var encrypted = encrypt.encrypt($('#rsa_text').val());
+            $('#rsa_encrypt').val(encrypted)
+        })
+
+        $('#btn_rsa_go_decrypt').click(function(){
+            $.ajax({
+                url: '/rsa',
+                data: JSON.stringify({
+                    text: $('#rsa_encrypt').val()
+                }),
+                type: 'post',
+                contentType: "application/json",
+                dataType: "json",
+                success: function(response){
+                    if (response.code === 2000) {
+                        $('#rsa_decrypt').val(response.data)
+                    }else{
+                        alert(response.message)
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+</html>
+
